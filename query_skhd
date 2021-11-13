@@ -154,7 +154,7 @@ function parseConfig(filePath) {
             continue;
         } else if (line.startsWith('.load')) {
             // load directive
-            res.loadFiles.push(line.match(/\".*\"/)[0].slice(1, -1));
+            res.loadFiles.push(path.dirname(filePath) + '/' + line.match(/\".*\"/)[0].slice(1, -1));
         } else if (line.startsWith('.blacklist')) {
             // blacklist directive
             continue; // TODO
@@ -204,21 +204,17 @@ function parseConfig(filePath) {
  * @param {number} depth - The depth to recurse for the `.load` directive.
  * @returns {object} - The config object.
  */
-function getConfig(filePath, depth = 0) {
+function getConfig(filePath, depth) {
     const config = parseConfig(filePath);
-
     const res = config;
-
     const loadedFiles = [filePath];
-
+    
     while (depth > 0) {
         --depth;
         for (const loadFile of config.loadFiles) {
             if (loadedFiles.includes(loadFile)) continue;
-            filePath = `${path.dirname(filePath)}/${loadFile}`;
-            console.log(filePath);
             loadedFiles.push(loadFile);
-            const newConfig = parseConfig(filePath);
+            const newConfig = parseConfig(loadFile);
             res.loadFiles = [...res.loadFiles, ...newConfig.loadFiles];
             res.hotkeys = [...res.hotkeys, ...newConfig.hotkeys];
             res.modes = [...res.modes, ...newConfig.modes];
@@ -243,8 +239,8 @@ function getDepth() {
     } else if (args.startsWith('--depth')) {
         depth = parseInt(args.slice(7)) || 0;
     }
-
     depth = Math.min(Math.max(depth, 0), 10);
+    return depth;
 }
 
 const depth = getDepth();
