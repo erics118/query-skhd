@@ -1,0 +1,122 @@
+{
+    "loadFiles": [],
+    "hotkeys": [
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "n"
+                ],
+                "modifiers": [
+                    "cmd"
+                ]
+            },
+            "modifier": "",
+            "script": "echo \"hello everyone\""
+        },
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "4"
+                ],
+                "modifiers": [
+                    "ctrl",
+                    "shift",
+                    "alt",
+                    "cmd"
+                ]
+            },
+            "modifier": "",
+            "script": "echo \"four modifiers\""
+        },
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "m"
+                ],
+                "modifiers": [
+                    "shift",
+                    "alt",
+                    "ctrl"
+                ]
+            },
+            "modifier": "",
+            "script": "echo \"meh\""
+        },
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "h"
+                ],
+                "modifiers": [
+                    "cmd",
+                    "shift",
+                    "alt",
+                    "ctrl"
+                ]
+            },
+            "modifier": "",
+            "script": "echo \"hyper\""
+        },
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "p"
+                ],
+                "modifiers": [
+                    "shift"
+                ]
+            },
+            "modifier": "->",
+            "script": "echo \"passthrough\""
+        },
+        {
+            "mode": "test_mode",
+            "shortcut": {
+                "keycode": [
+                    "a"
+                ],
+                "modifiers": []
+            },
+            "modifier": "",
+            "script": "echo \"a\""
+        }
+    ],
+    "modes": [
+        {
+            "mode": "test_mode",
+            "modifier": "@",
+            "script": "echo \"entered test_mode\""
+        }
+    ],
+    "switchModes": [
+        {
+            "mode": "test_mode",
+            "shortcut": {
+                "keycode": [
+                    "escape"
+                ],
+                "modifiers": []
+            },
+            "modifier": "",
+            "switchMode": "default"
+        },
+        {
+            "mode": "default",
+            "shortcut": {
+                "keycode": [
+                    "t"
+                ],
+                "modifiers": [
+                    "alt"
+                ]
+            },
+            "modifier": "",
+            "switchMode": "test_mode"
+        }
+    ]
+}
