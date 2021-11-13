@@ -1,0 +1,252 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+const modifiers = [
+    'fn',
+    'cmd', 'lcmd', 'rcmd',
+    'shift', 'lshift', 'rshift',
+    'alt', 'lalt', 'ralt',
+    'ctrl', 'lctrl', 'rctrl',
+    'hyper', 'meh'
+];
+
+const keycodes = [
+    'return ',
+    'tab', 'space', 'backspace',
+    'escape', 'delete', 'home', 'end',
+    'pageup', 'pagedown', 'insert',
+    'left', 'right', 'up', 'down',
+    'f1', 'f2', 'f3', 'f4', 'f5',
+    'f6', 'f7', 'f8', 'f9', 'f10',
+    'f11', 'f12', 'f13', 'f14', 'f15',
+    'f16', 'f17', 'f18', 'f19', 'f20',
+    'sound_up', 'sound_down',
+    'mute', 'play', 'previous',
+    'next', 'rewind', 'fast',
+    'brightness_up', 'brightness_down',
+    'illumination_up', 'illumination_down',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g',
+    'h', 'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't', 'u',
+    'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4',
+    '5', '6', '7', '8', '9'
+];
+
+/**
+ * Checks if a string is a keycode.
+ * @param {string} kc - The string to check.
+ * @returns {string} - Whether or not the string is a keycode.
+ */
+function isKeycode(kc) {
+    return keycodes.includes(kc) || /0x[0-9A-F]{2}/.test(kc);
+}
+
+/**
+ * Checks if a string is a modifier.
+ * @param {string} mod - The string to check.
+ * @returns {string} - Whether or not the string is a modifier.
+ */
+function isModifier(mod) {
+    return modifiers.includes(mod);
+}
+
+/**
+ * Get the contents of a file.
+ * @param {string} filePath - The path of the file.
+ * @returns {string} - The file contents.
+ */
+function getFile(filePath) {
+    const fileData = fs.readFileSync(filePath, 'utf8');
+    return fileData;
+}
+
+/**
+ * Gets the skhd config location.
+ * @throws {Error} If the skhd config file cannot be found.
+ */
+function getConfigLocation() {
+    // skhd config locations
+    const locations = [
+        `${process.env.XDG_CONFIG_HOME}/skhd/skhdrc`,
+        `${process.env.HOME}/.config/skhd/skhdrc`,
+        `${process.env.HOME}/.skhdrc`
+    ];
+
+    for (const location of locations) {
+        if (fs.existsSync(location)) {
+            return location;
+        }
+    }
+    throw new Error("No skhd config location found.");
+}
+
+/**
+ * Validates a shortcut.
+ * @param {string} shortcut - The shortcut to validate.
+ * @returns {boolean} Whether or not the shortcut is valid.
+ */
+function checkShortcut(shortcut) {
+    // pad for spaces to split
+    shortcut = shortcut.replace(/\+/g, ' + ').replace(/\-/g, ' - ');
+    const parts = shortcut.split(/[\s]+/).filter(s => s);
+
+    // just a single keycode
+    if (parts.length === 1 && isKeycode(parts[0])) return true;
+
+    // loop over parts
+    let i = 0;
+    while (i < parts.length && (isModifier(parts[i]) || parts[i] == '+')) ++i;
+
+    // remaining should be `-` then a keycode
+    if (i !== parts.length - 2) return false;
+
+    // last one should be a keycode
+    if (isKeycode(parts[++i])) {
+        return true;
+    }
+
+    // otherwise, it's not a valid shortcut
+    return false;
+}
+
+/**
+ * Parses a shortcut.
+ * @param {string} shortcut - The shortcut to parse.
+ * @returns {object} - The parsed shortcut.
+ */
+function parseShortcut(shortcut) {
+    // must be a valid shortcut, otherwise may have error
+    shortcut = shortcut.replaceAll(/\+/g, ' + ').replaceAll(/\-/g, ' - ');
+    const parts = shortcut.split(/[\s]+/).filter(s => !['', '-', '+'].includes(s));
+    const res = { keycode: '', modifiers: [] };
+    res.keycode = parts.splice(-1); // chop off last part and use as keycode
+    for (let i = 0; i < parts.length; ++i) {
+        if (parts[i] === 'hyper') res.modifiers.push('cmd', 'shift', 'alt', 'ctrl');
+        else if (parts[i] === 'meh') res.modifiers.push('shift', 'alt', 'ctrl');
+        else res.modifiers.push(parts[i]);
+    }
+    res.modifiers = [...new Set(res.modifiers)];
+    return res;
+}
+
+/**
+ * Parses the config file.
+ * @param {string} filePath - The path of the config file.
+ * @returns {object} - The config object.
+ */
+function parseConfig(filePath) {
+    const fileData = getFile(filePath);
+    const lines = fileData.split('\n');
+
+    // define regexes to use
+    const hotkeyRegex = /^((?<mode>\w+)[ \t]*<[ \t]*)?(?<shortcut>[ \t\w\-\+]+)(?<modifier>->[ \t]*)?:(?<script>.*)$/;
+    const modeRegex = /^::[ \t]*(?<mode>\w+)[ \t]*(?<modifier>@[ \t]*)?:[ \t]*(?<script>.*)$/;
+    const switchModeRegex = /^((?<mode>\w+)[ \t]*<[ \t]*)?(?<shortcut>[ \t\w\-\+]+)(?<modifier>->[ \t]*)?;[ \t]*(?<switchMode>\w+)$/;
+
+    // result structure
+    const res = { loadFiles: [], hotkeys: [], modes: [], switchModes: [] };
+
+    for (const line of lines) {
+        if (line.startsWith('#')) { // comment
+            continue;
+        } else if (line.startsWith('.load')) {
+            // load directive
+            res.loadFiles.push(line.match(/\".*\"/)[0].slice(1, -1));
+        } else if (line.startsWith('.blacklist')) {
+            // blacklist directive
+            continue; // TODO
+        } else if (hotkeyRegex.test(line)) {
+            // hotkey definition
+            const match = line.match(hotkeyRegex);
+            if (checkShortcut(match.groups.shortcut) && match.groups.script) {
+                const data = {
+                    mode: (match.groups.mode ?? 'default').trim(),
+                    shortcut: parseShortcut(match.groups.shortcut.trim()),
+                    modifier: (match.groups.modifier ?? '').trim(),
+                    script: match.groups.script.trim()
+                };
+                res.hotkeys.push(data);
+            }
+        } else if (modeRegex.test(line)) {
+            // mode definition
+            const match = line.match(modeRegex);
+            if (match.groups.mode && match.groups.script) {
+                const data = {
+                    mode: match.groups.mode.trim(),
+                    modifier: (match.groups.modifier ?? '').trim(),
+                    script: match.groups.script.trim()
+                };
+                res.modes.push(data);
+            }
+        } else if (switchModeRegex.test(line)) {
+            // mode hotkey definition
+            const match = line.match(switchModeRegex);
+            if (checkShortcut(match.groups.shortcut) && match.groups.switchMode) {
+                const data = {
+                    mode: (match.groups.mode ?? 'default').trim(),
+                    shortcut: parseShortcut(match.groups.shortcut.trim()),
+                    modifier: (match.groups.modifier ?? '').trim(),
+                    switchMode: match.groups.switchMode.trim()
+                };
+                res.switchModes.push(data);
+            }
+        }
+    }
+    return res;
+}
+
+/**
+ * Recursively parses the config.
+ * @param {string} filePath - The path of the config file.
+ * @param {number} depth - The depth to recurse for the `.load` directive.
+ * @returns {object} - The config object.
+ */
+function getConfig(filePath, depth = 0) {
+    const config = parseConfig(filePath);
+
+    const res = config;
+
+    const loadedFiles = [filePath];
+
+    while (depth > 0) {
+        --depth;
+        for (const loadFile of config.loadFiles) {
+            if (loadedFiles.includes(loadFile)) continue;
+            filePath = `${path.dirname(filePath)}/${loadFile}`;
+            console.log(filePath);
+            loadedFiles.push(loadFile);
+            const newConfig = parseConfig(filePath);
+            res.loadFiles = [...res.loadFiles, ...newConfig.loadFiles];
+            res.hotkeys = [...res.hotkeys, ...newConfig.hotkeys];
+            res.modes = [...res.modes, ...newConfig.modes];
+            res.switchModes = [...res.switchModes, ...newConfig.switchModes];
+        }
+    }
+    return res;
+}
+
+/**
+ * Gets the depth to recurse.
+ * @returns {number} - The depth to recurse.
+ */
+function getDepth() {
+    let depth = 0;
+    const args = process.argv.slice(2).join('');
+
+    if (args.startsWith('-d')) {
+        depth = parseInt(args.slice(2)) || 0;
+    } else if (args.startsWith('--depth=')) {
+        depth = parseInt(args.slice(8)) || 0;
+    } else if (args.startsWith('--depth')) {
+        depth = parseInt(args.slice(7)) || 0;
+    }
+
+    depth = Math.min(Math.max(depth, 0), 10);
+}
+
+const depth = getDepth();
+const configLocation = getConfigLocation();
+console.log(JSON.stringify(getConfig(configLocation, depth), null, 4));
