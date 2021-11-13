@@ -1,2 +1,4 @@
-# parse-skhd
-A shell script to parse skhd config
+# query-skhd
+A shell script to parse and output the skhd config as JSON.
+
+
