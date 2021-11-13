@@ -5,11 +5,11 @@ A shell script to parse and output your [skhd](https://github.com/koekeishiya/sk
 
 Parses your skhd config as described [here](https://github.com/koekeishiya/skhd/blob/b659b90576cf88100b52ca6ab9270d84af7e579b/README.md).
 
--  Putomatically finds the location of the skhd config file.
+-  Automatically finds the location of the skhd config file.
 -  Parses the `.load` directive recursively (up to a depth of 10).
 -  Parses mode definitions.
--  Parses shorcuts.
--  Parses shorcuts that are part of a mode.
+-  Parses shortcuts.
+-  Parses shortcuts that are part of a mode.
 -  Shows `->` and `@` when used.
 -  Returns the data as JSON to be used with [jq](https://github.com/stedolan/jq) or other JSON parsing utilities.
 -  Does not support querying the `.blacklist` directive yet.
