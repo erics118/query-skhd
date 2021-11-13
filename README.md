@@ -46,4 +46,4 @@ query_skhd --depth3
 query_skhd --depth=3
 ```
 ## Credits
-This project was created as a utility for [skhd](https://github.com/stedolan/jq)
+This project was created as a utility for [skhd](https://github.com/stedolan/jq).
