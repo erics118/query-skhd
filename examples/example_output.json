@@ -1,6 +1,6 @@
 {
     "loadFiles": [],
-    "hotkeys": [
+    "shortcuts": [
         {
             "mode": "default",
             "shortcut": {
@@ -11,8 +11,9 @@
                     "cmd"
                 ]
             },
-            "modifier": "",
-            "script": "echo \"hello everyone\""
+            "passThrough": false,
+            "script": "echo \"hello everyone\"",
+            "comment": ""
         },
         {
             "mode": "default",
@@ -22,13 +23,14 @@
                 ],
                 "modifiers": [
                     "ctrl",
-                    "shift",
-                    "alt",
+                    "rshift",
+                    "ralt",
                     "cmd"
                 ]
             },
-            "modifier": "",
-            "script": "echo \"four modifiers\""
+            "passThrough": false,
+            "script": "echo \"four modifiers\"",
+            "comment": ""
         },
         {
             "mode": "default",
@@ -42,8 +44,9 @@
                     "ctrl"
                 ]
             },
-            "modifier": "",
-            "script": "echo \"meh\""
+            "passThrough": false,
+            "script": "echo \"meh\"",
+            "comment": ""
         },
         {
             "mode": "default",
@@ -58,8 +61,9 @@
                     "ctrl"
                 ]
             },
-            "modifier": "",
-            "script": "echo \"hyper\""
+            "passThrough": false,
+            "script": "echo \"hyper\"",
+            "comment": ""
         },
         {
             "mode": "default",
@@ -68,11 +72,12 @@
                     "p"
                 ],
                 "modifiers": [
-                    "shift"
+                    "rshift"
                 ]
             },
-            "modifier": "->",
-            "script": "echo \"passthrough\""
+            "passThrough": false,
+            "script": "echo \"passthrough\"",
+            "comment": ""
         },
         {
             "mode": "test_mode",
@@ -82,15 +87,17 @@
                 ],
                 "modifiers": []
             },
-            "modifier": "",
-            "script": "echo \"a\""
+            "passThrough": false,
+            "script": "echo \"a\"",
+            "comment": "prints an 'a'"
         }
     ],
-    "modes": [
+    "modeDefinitions": [
         {
             "mode": "test_mode",
-            "modifier": "@",
-            "script": "echo \"entered test_mode\""
+            "captureAll": true,
+            "script": "echo \"entered test_mode\"",
+            "comment": ""
         }
     ],
     "switchModes": [
@@ -102,8 +109,9 @@
                 ],
                 "modifiers": []
             },
-            "modifier": "",
-            "switchMode": "default"
+            "passThrough": false,
+            "switchMode": "default",
+            "comment": ""
         },
         {
             "mode": "default",
@@ -115,8 +123,9 @@
                     "alt"
                 ]
             },
-            "modifier": "",
-            "switchMode": "test_mode"
+            "passThrough": false,
+            "switchMode": "test_mode",
+            "comment": ""
         }
     ]
 }
