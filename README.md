@@ -11,7 +11,9 @@ Parses your skhd config as described [here](https://github.com/koekeishiya/skhd/
 -  Parses shortcuts.
 -  Parses shortcuts that are part of a mode.
 -  Shows `->` and `@` when used.
--  Returns the data as JSON to be used with [jq](https://github.com/stedolan/jq) or other JSON parsing utilities.
+-  Can return the data as JSON to be used with [jq](https://github.com/stedolan/jq) or other JSON parsing utilities.
+-  Can return the data in an easy to read format.
+-  Shows comments instead of the script when there is a comment.
 -  Does not support querying the `.blacklist` directive yet.
 -  Does not support application specific hotkeys yet.
 
