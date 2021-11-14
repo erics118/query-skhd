@@ -58,5 +58,17 @@ example:
 ```
 query_skhd -p
 ```
+
+## Force Script
+
+Forces the script to show instead of the comment.
+
+example:
+
+```
+query_skhd -s
+```
+
 ## Credits
-This project was created as a utility for [skhd](https://github.com/stedolan/jq).
+
+This project was created as a utility for [skhd](https://github.com/koekeishiya/skhd).
