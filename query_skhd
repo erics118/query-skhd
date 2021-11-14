@@ -252,9 +252,9 @@ function prettyPrintShortcut(shortcut) {
     return res;
 }
 
-function prettyPrintConfig(config) {
+function prettyPrintConfig(config, forceScript) {
     const pretty = {};
-    const modes = config.modeDefinitions.map(m => m.mode).sort();
+    const modes = [...new Set(config.modeDefinitions.map(m => m.mode)), 'default'].sort();
     for (const mode of modes)
         pretty[mode] = { shortcuts: [], modeDefinition: '', switchModes: [] };
 
@@ -275,29 +275,31 @@ function prettyPrintConfig(config) {
         for (const switchMode of pretty[mode].switchModes)
             console.log(`    ${prettyPrintShortcut(switchMode.shortcut)} ${switchMode.passThrough ? '-> ' : ''}; switch to ${switchMode.switchMode} mode`);
         for (const shortcut of pretty[mode].shortcuts)
-            console.log(`    ${prettyPrintShortcut(shortcut.shortcut)} ${shortcut.passThrough ? '-> ' : ''}: ${shortcut.comment || shortcut.script}`);
+            console.log(`    ${prettyPrintShortcut(shortcut.shortcut)} ${shortcut.passThrough ? '-> ' : ''}: ${forceScript ? shortcut.script : shortcut.comment || shortcut.script}`);
     }
 }
 
 function getArgs() {
     const args = parse(process.argv.slice(2), {
-        short: ['d:', 'p'],
-        long: ['depth:', 'pretty']
+        short: ['d:', 'p', 's'],
+        long: ['depth:', 'pretty', 'script']
     });
 
     let depth = 1;
     let prettyPrint = false;
+    let forceScript = false;
 
     for (let [k, v] of Object.entries(args)) {
         if (['d', 'depth'].includes(k) && parseInt(v) !== NaN) depth = parseInt(v);
         else if (['p', 'pretty'].includes(k)) prettyPrint = true;
+        else if (['s', 'script'].includes(k)) forceScript = true;
     }
-    return { depth, prettyPrint };
+    return { depth, prettyPrint, forceScript };
 }
 
 const args = getArgs();
 const configLocation = getConfigLocation();
 const config = getConfig(configLocation, args.depth);
 
-if (args.prettyPrint) prettyPrintConfig(config);
+if (args.prettyPrint) prettyPrintConfig(config, args.forceScript);
 else console.log(JSON.stringify(config, null, 4));
