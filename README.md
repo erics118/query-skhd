@@ -37,13 +37,24 @@ chmod +x query_skhd
 ### Depth
 
 Sets the depth for recursively parsing the config file.
+
 examples:
+
 ```sh
-query_skhd -d3
 query_skhd -d 3
+query_skhd -d=3
 query_skhd --depth 3
-query_skhd --depth3
 query_skhd --depth=3
+```
+
+## Pretty Print
+
+Prints the config in an easy to read format.
+
+example:
+
+```
+query_skhd -p
 ```
 ## Credits
 This project was created as a utility for [skhd](https://github.com/stedolan/jq).
