@@ -1,0 +1,10 @@
+default 
+    ⌥t ; switch to test_mode mode
+    ⌘n : echo "hello everyone"
+    ⌃r⇧r⌥⌘4 : echo "four modifiers"
+    ⇧⌥⌃m : echo "meh"
+    ⌘⇧⌥⌃h : echo "hyper"
+    r⇧p : echo "passthrough"
+test_mode @
+    escape ; switch to default mode
+    a : prints an 'a'
