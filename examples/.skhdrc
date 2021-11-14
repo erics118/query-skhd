@@ -1,18 +1,16 @@
-# example skhdrc
-
 cmd - n : echo "hello everyone"
 
-ctrl + shift + alt + cmd - 4 : echo "four modifiers"
+ctrl + rshift + ralt + cmd - 4 : echo "four modifiers"
 
 meh - m : echo "meh"
 
 hyper - h : echo "hyper"
 
-shift - p : echo "passthrough"
+rshift - p : echo "passthrough"
 
 :: test_mode @ : echo "entered test_mode"
 
-test_mode < a : echo "a"
+test_mode < a : echo "a" # prints an 'a'
 
 test_mode < escape ; default
 
